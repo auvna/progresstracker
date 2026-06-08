@@ -21,7 +21,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["progresstracker-7lpvfkjrcsinxvytwpadgq.streamlit.app"],
+    allow_origins=["https://strong-laughter-production-0297.up.railway.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
