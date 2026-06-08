@@ -21,7 +21,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8501"],
+    allow_origins=["progresstracker-7lpvfkjrcsinxvytwpadgq.streamlit.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
