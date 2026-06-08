@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-API = "https://progresstracker-production-03cb.up.railway.app/api/project"
+API = "http://localhost:8000/api/project"
 
 st.set_page_config(page_title="Progress Tracker", layout="wide")
 

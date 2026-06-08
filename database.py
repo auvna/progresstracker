@@ -1,7 +1,10 @@
+import os
 from sqlmodel import SQLModel, Session, create_engine
-from models import Project, Milestone, Task, Update
+from dotenv import load_dotenv
 
-DATABASE_URL = "sqlite:///progress.db"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///progress.db")
 
 engine = create_engine(DATABASE_URL, echo=False)
 
