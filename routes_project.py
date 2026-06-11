@@ -1,4 +1,11 @@
 import os
+from services_db import (
+    get_project, create_project, update_project,
+    get_milestones, create_milestone, delete_milestone,
+    get_tasks, create_task, toggle_task, delete_task,
+    get_updates, create_update, get_progress,
+    get_logs, create_log, toggle_log, delete_log
+)
 from fastapi import APIRouter, HTTPException, Request, Depends, Header
 from sqlmodel import Session
 from pydantic import BaseModel
@@ -33,6 +40,9 @@ class ProjectBody(BaseModel):
     description: str
     start_date: date
     goal_date: date
+
+class LogBody(BaseModel):
+    title: str
 
 
 class MilestoneBody(BaseModel):
@@ -150,5 +160,44 @@ def remove_task(task_id: int, session: Session = Depends(get_session)):
 def post_update(body: UpdateBody, session: Session = Depends(get_session)):
     try:
         return create_update(session, body.note)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ─── Log Endpoints ──────────────────────────────────────
+
+@router.get("/log")
+def get_log_entries(session: Session = Depends(get_session)):
+    try:
+        logs = get_logs(session)
+        return [{"id": l.id, "title": l.title, "done": l.done} for l in logs]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/log")
+def add_log_entry(body: LogBody, session: Session = Depends(get_session)):
+    try:
+        return create_log(session, body.title)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.patch("/log/{log_id}")
+def toggle_log_entry(log_id: int, session: Session = Depends(get_session)):
+    try:
+        return toggle_log(session, log_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/log/{log_id}")
+def delete_log_entry(log_id: int, session: Session = Depends(get_session)):
+    try:
+        delete_log(session, log_id)
+        return {"ok": True}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

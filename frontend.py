@@ -1,6 +1,32 @@
 import streamlit as st
 import requests
 
+def api_post_no_auth(path, body):
+    try:
+        r = requests.post(f"{API}/{path}", json=body)
+        return r.json()
+    except Exception as e:
+        st.error(f"API error: {e}")
+        return None
+
+
+def api_patch_no_auth(path):
+    try:
+        r = requests.patch(f"{API}/{path}")
+        return r.json()
+    except Exception as e:
+        st.error(f"API error: {e}")
+        return None
+
+
+def api_delete_no_auth(path):
+    try:
+        r = requests.delete(f"{API}/{path}")
+        return r.json()
+    except Exception as e:
+        st.error(f"API error: {e}")
+        return None
+
 API = "https://progresstracker-production-03cb.up.railway.app/api/project"
 
 st.set_page_config(page_title="Progress Tracker", layout="wide")
@@ -109,6 +135,31 @@ def public_view():
         st.caption("No updates posted yet.")
     for u in updates:
         st.markdown(f"**{u['created_at'][:10]}** — {u['note']}")
+        st.markdown("---")
+
+        # Log
+        st.subheader("Log")
+        logs = api_get("log")
+        if logs is None:
+            logs = []
+
+        with st.form("new_log_form"):
+            new_title = st.text_input("Add a new entry")
+            if st.form_submit_button("Add"):
+                if new_title.strip():
+                    api_post_no_auth("log", {"title": new_title})
+                    st.rerun()
+
+        for l in logs:
+            col1, col2, col3 = st.columns([6, 1, 1])
+            icon = "✅" if l["done"] else "⬜"
+            col1.write(f"{icon} {l['title']}")
+            if col2.button("Toggle", key=f"log_toggle_{l['id']}"):
+                api_patch_no_auth(f"log/{l['id']}")
+                st.rerun()
+            if col3.button("Delete", key=f"log_delete_{l['id']}"):
+                api_delete_no_auth(f"log/{l['id']}")
+                st.rerun()
 
 
 # ─── Admin View ─────────────────────────────────────────

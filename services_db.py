@@ -1,6 +1,7 @@
 from datetime import date
 from sqlmodel import Session, select
 from models import Project, Milestone, Task, Update
+from models import Project, Milestone, Task, Update, Log
 
 
 # ─── Project ────────────────────────────────────────────
@@ -130,3 +131,35 @@ def get_progress(session: Session) -> dict:
         "percentage": percentage,
         "totalMilestones": len(milestones),
     }
+
+# ─── Log ────────────────────────────────────────────────
+
+def get_logs(session: Session) -> list:
+    return session.exec(select(Log)).all()
+
+
+def create_log(session: Session, title: str) -> Log:
+    log = Log(title=title)
+    session.add(log)
+    session.commit()
+    session.refresh(log)
+    return log
+
+
+def toggle_log(session: Session, log_id: int) -> Log:
+    log = session.get(Log, log_id)
+    if not log:
+        raise ValueError(f"Log {log_id} not found.")
+    log.done = not log.done
+    session.add(log)
+    session.commit()
+    session.refresh(log)
+    return log
+
+
+def delete_log(session: Session, log_id: int):
+    log = session.get(Log, log_id)
+    if not log:
+        raise ValueError(f"Log {log_id} not found.")
+    session.delete(log)
+    session.commit()

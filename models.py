@@ -30,3 +30,8 @@ class Update(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     note: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class Log(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    done: bool = False
